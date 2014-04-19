@@ -1,0 +1,14 @@
+/Library
+/Temp
+/obj
+.DS_Store
+
+*.Trashes
+*.swp
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.pidb
+*.userprefs
