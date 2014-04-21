@@ -3,36 +3,30 @@ using System.Collections;
 using System.IO;
 using LitJson;
 
-public class MainController : MonoBehaviour {
+public class MainController : DesinerARBehaviour {
 
-	static public DesignerAR designerAR;
-	static public string modelURL;
 
-	public UICenterOnChild tutorialCenterOnChild;
-	public ModelsController modelsController;
-	public ARUIController arUIController;
+	void Start(){
+		DesignerARStateManager.SetListenerState (DesignerARStateManager.State.DataInit);
+	}
 
-	private string jsonURL;
-	private string cacheURL;
-	private UIAtlas modelIconAtlas;
-
-	void Awake(){
-		jsonURL = "https://designerar.firebaseio.com/designerar_new.json";
-		cacheURL = "file:///" + Application.persistentDataPath;
-		tutorialCenterOnChild.onFinished = OnTutorialPageChanged;
+	public override void DataInit ()
+	{
+		base.DataInit ();
 		StartCoroutine (GetJsonDataFromInternet ());
 	}
 
 	IEnumerator GetJsonDataFromInternet(){
+		string jsonURL = "https://designerar.firebaseio.com/designerar_new.json";
 		WWW www = new WWW (jsonURL);
 		yield return www;
 		if (www.error == null) {
-			designerAR = JsonMapper.ToObject<DesignerAR>(www.text);
-			modelURL = designerAR.link;
+			GlobalObject.SetDesignerAR(JsonMapper.ToObject<DesignerAR>(www.text));
 			byte[] bytes=www.bytes;
 			Directory.CreateDirectory(Application.persistentDataPath +"/Json/");
 			File.WriteAllBytes(Application.persistentDataPath +"/Json/ar.json", bytes);
 			Debug.Log("GetJsonDataFromInternetSuccess");
+			GetJsonDataComplete();
 		}
 		else{
 			Debug.Log(www.error);
@@ -41,12 +35,12 @@ public class MainController : MonoBehaviour {
 	}
 
 	IEnumerator GetJsonDataFromCache(){
-		WWW www = new WWW(cacheURL+"/Json/ar.json");
+		WWW www = new WWW("file:///" + Application.persistentDataPath+"/Json/ar.json");
 		yield return www;
 		if (www.error == null) {
-			designerAR = JsonMapper.ToObject<DesignerAR>(www.text);
-			modelURL = designerAR.link;
+			GlobalObject.SetDesignerAR(JsonMapper.ToObject<DesignerAR>(www.text));
 			Debug.Log("GetJsonDataFromCacheSuccess");
+			GetJsonDataComplete();
 		}
 		else{
 			Debug.Log(www.error);
@@ -55,34 +49,13 @@ public class MainController : MonoBehaviour {
 	}
 
 	void GetJsonDataFromResource(){
-		designerAR = JsonMapper.ToObject<DesignerAR>((Resources.Load("ar",typeof(TextAsset)) as TextAsset).text);
-		modelURL = designerAR.link;
+		GlobalObject.SetDesignerAR(JsonMapper.ToObject<DesignerAR>((Resources.Load("ar",typeof(TextAsset)) as TextAsset).text));
 		Debug.Log("GetJsonDataFromResource");
+		GetJsonDataComplete ();
 	}
 
-	IEnumerator GetAtlasFromInternet(){
-		WWW www = new WWW (modelURL + "ModelIconAtlas.unity3d");
-		yield return www;
-		if (www.error == null) {
-			AssetBundleRequest request = www.assetBundle.LoadAsync("ModelIconAtlas",typeof(GameObject));
-			yield return request;
-			modelIconAtlas = (request.asset as GameObject).GetComponent<UIAtlas>();
 
-		}
-		else{
-
-		}
-	}
-
-	void OnTutorialPageChanged(){
-		Debug.Log (tutorialCenterOnChild.centeredObject.name);
-		if(tutorialCenterOnChild.centeredObject.name != "pend"){
-
-		}
-		else{
-			tutorialCenterOnChild.transform.parent.parent.gameObject.SetActive(false);
-			modelsController.gameObject.SetActive(true);
-			arUIController.gameObject.SetActive(true);
-		}
+	void GetJsonDataComplete(){
+		DesignerARStateManager.SetListenerState (DesignerARStateManager.State.Title);
 	}
 }
