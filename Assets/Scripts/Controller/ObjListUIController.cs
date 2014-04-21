@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ARUIController : DesinerARBehaviour {
+public class ObjListUIController : DesinerARBehaviour {
 
 	public override void AR ()
 	{
 		base.AR ();
-		SetAllChildActive (true);
+		SetAllChildActive (false);
 	}
 	
 	public override void DataInit ()
@@ -18,7 +18,7 @@ public class ARUIController : DesinerARBehaviour {
 	public override void ModelSelect ()
 	{
 		base.ModelSelect ();
-		SetAllChildActive (false);
+		SetAllChildActive (true);
 	}
 	
 	public override void Title ()
