@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ARUIController : MonoBehaviour {
+public class ModelsController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
